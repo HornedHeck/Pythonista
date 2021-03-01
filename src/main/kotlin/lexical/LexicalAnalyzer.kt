@@ -1,4 +1,6 @@
-package lexic
+package lexical
+
+import synt.Lexem
 
 interface LexicalAnalyzer {
 	

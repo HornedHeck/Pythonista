@@ -1,8 +1,11 @@
-package lexic
+package lexical
+
+import synt.Lexem
+import synt.LexemType
 
 object Lexemizer {
 	
-	fun leximizeLine(table: SymbolTable, line: List<String>) = if (
+	fun leximizeLine(table: SymbolTable, line: List<String>, lineNumber: Int) = if (
 		line.first().trimStart().startsWith("#")
 	) {
 		// Comment line
@@ -12,6 +15,8 @@ object Lexemizer {
 			Lexem(
 				key = it,
 				type = when {
+					it == "." -> LexemType.DOT
+					it == "," -> LexemType.COMMA
 					it == "[" -> LexemType.SO_PARENTHESIS
 					it == "]" -> LexemType.SC_PARENTHESIS
 					it == "(" -> LexemType.RO_PARENTHESIS
@@ -21,38 +26,33 @@ object Lexemizer {
 					it == " " -> LexemType.SPACE
 					it == ":" -> LexemType.COLON
 					it in keywords -> LexemType.KEYWORD
-					it.matches(numberRegex) -> {
-						LexemType.NUMBER_CONSTANT
-					}
+					it.matches(numberRegex) -> LexemType.NUMBER_CONSTANT
 					it in arithmeticOperators -> LexemType.ARITHMETIC_OPERATOR
 					it in boolOperators -> LexemType.BOOL_OPERATOR
-					it in boolConstants -> {
-						if (!table.constants.containsKey(it)) {
-							table.constants[it] = Lexem(LexemType.BOOL_CONSTANT, it)
-						}
-						LexemType.BOOL_CONSTANT
-					}
-					it.matches(nameRegex) -> when {
-						table.variables.containsKey(it) -> LexemType.VARIABLE
-						table.classes.containsKey(it) -> LexemType.CLASS
-						table.functions.containsKey(it) -> LexemType.FUNCTION
-						else -> LexemType.RAW_NAME
-					}
+					it in boolConstants -> LexemType.BOOL_CONSTANT
+					it.matches(nameRegex) -> LexemType.RAW_NAME
 					else -> LexemType.UNKNOWN
 				}
 			)
 		}
 			.concatStrings(table)
-			?.asSequence()
-			?.proceedConstants(table)
-			?.toList()
+			.asSequence()
+			.proceedConstants(table)
+			.proceedNames(table)
+			.proceedUnknowns(lineNumber)
+			.toList()
 	}
 	
 	
-	private fun List<Lexem>.concatStrings(table: SymbolTable): List<Lexem>? {
+	private fun List<Lexem>.concatStrings(table: SymbolTable): List<Lexem> {
 		val indices = mapIndexed { i, l -> i to l }.filter { it.second.type == LexemType.QUOTE }.map { it.first }
 		if (indices.size.rem(2) != 0) {
-			return null
+			return listOf(
+				Lexem(
+					LexemType.UNKNOWN,
+					joinToString("") { it.key }
+				)
+			)
 		}
 		var pI = 0
 		val result = mutableListOf<Lexem>()
@@ -77,6 +77,7 @@ object Lexemizer {
 	}
 	
 	private val constTypes = listOf(LexemType.STRING_CONSTANT, LexemType.NUMBER_CONSTANT, LexemType.BOOL_CONSTANT)
+	
 	private fun Sequence<Lexem>.proceedConstants(table: SymbolTable) = map {
 		if (it.type in constTypes && !table.constants.containsKey(it.key)) {
 			table.constants[it.key] = it
@@ -84,15 +85,32 @@ object Lexemizer {
 		it
 	}
 	
-	private val numberRegex = Regex("[0-9]+\\.?[0-9]*")
+	private fun Sequence<Lexem>.proceedNames(table: SymbolTable) = map {
+		if (it.type == LexemType.RAW_NAME && !table.names.containsKey(it.key)) {
+			table.names[it.key] = it
+		}
+		it
+	}
+	
+	private fun Sequence<Lexem>.proceedUnknowns(line: Int) = map {
+		if (it.type == LexemType.UNKNOWN) {
+			it.errorAt(line)
+		}
+		it
+	}
+	
+	private val numberRegex = Regex("([0-9]+\\.[0-9]+)|[0-9]+")
 	private val arithmeticOperators = listOf(
-		"+", "-", "*", "/", "**"
+		"+", "-", "*", "/", "**", "%"
 	)
 	private val boolOperators = listOf(
 		"==", "!=", "<=", ">=", "<", ">", "and", "or"
 	)
+	
 	private val nameRegex = Regex("_*[a-zA-Z][a-zA-Z0-9_]*")
+	
 	private val boolConstants = listOf("True", "False")
+	
 	private val keywords = listOf(
 		"await", "else", "import", "pass",
 		"None", "break", "except", "in", "raise",

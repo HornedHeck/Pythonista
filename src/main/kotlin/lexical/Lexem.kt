@@ -1,4 +1,4 @@
-package lexic
+package synt
 
 enum class LexemType {
 	VARIABLE, CLASS, FUNCTION,
@@ -7,7 +7,7 @@ enum class LexemType {
 	RAW_NAME,
 	RO_PARENTHESIS, RC_PARENTHESIS,
 	SO_PARENTHESIS, SC_PARENTHESIS,
-	QUOTE, COLON, SPACE,
+	QUOTE, COLON, SPACE, DOT, COMMA,
 	KEYWORD,
 	ASSIGNMENT,
 	NONE,

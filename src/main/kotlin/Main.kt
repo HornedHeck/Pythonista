@@ -1,5 +1,5 @@
-import lexic.LexicalAnalyzerImpl
-import lexic.SymbolTable
+import lexical.LexicalAnalyzerImpl
+import lexical.SymbolTable
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -13,18 +13,13 @@ fun main(args: Array<String>) {
 	println("--------------------------------------------------------------------------")
 	val lexicalAnalyzer = LexicalAnalyzerImpl()
 	val lResult = lexicalAnalyzer.analyze(code, table)
-	if (lResult != null) {
-		lResult.forEachIndexed { i, v ->
-			println("${i + 1}. $v")
-		}
-		println("--------------------------------------------------------------------------")
-		println("Symbol tables:")
-		println("Variables:")
-		table.variables.forEach(::println)
-		println("Constants:")
-		table.constants.forEach(::println)
-	} else {
-		println("Analyze errors occurred")
+	lResult.forEachIndexed { i, v ->
+		println("${i + 1}. $v")
 	}
-	
+	println("--------------------------------------------------------------------------")
+	println("Symbol tables:")
+	println("Names:")
+	table.names.forEach(::println)
+	println("Constants:")
+	table.constants.forEach(::println)
 }
