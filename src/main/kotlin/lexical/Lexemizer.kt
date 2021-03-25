@@ -1,8 +1,5 @@
 package lexical
 
-import synt.Lexem
-import synt.LexemType
-
 object Lexemizer {
 	
 	fun leximizeLine(table: SymbolTable, line: List<String>, lineNumber: Int) = if (

@@ -1,4 +1,4 @@
-package synt
+package lexical
 
 enum class LexemType {
 	VARIABLE, CLASS, FUNCTION,

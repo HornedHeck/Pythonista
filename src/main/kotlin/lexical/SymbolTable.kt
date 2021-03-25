@@ -1,7 +1,5 @@
 package lexical
 
-import synt.Lexem
-
 class SymbolTable {
 	
 	val names = mutableMapOf<String, Lexem>()
