@@ -19,6 +19,7 @@ object Lexemizer {
 					it == "(" -> LexemType.RO_PARENTHESIS
 					it == ")" -> LexemType.RC_PARENTHESIS
 					it == "'" -> LexemType.QUOTE
+					it == "+=" -> LexemType.ADD_ASSIGNMENT
 					it == "=" -> LexemType.ASSIGNMENT
 					it == " " -> LexemType.SPACE
 					it == ":" -> LexemType.COLON

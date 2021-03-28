@@ -22,8 +22,10 @@ class LexicalAnalyzerImpl : LexicalAnalyzer {
 private fun withPattern(pattern: String) = "((?<=$pattern)|(?=$pattern))"
 
 private val splitRegex = Regex(
-	withPattern("(\\*\\*)|((?<=[a-zA-Z_\\])])\\.(?=[a-zA-Z]))|[+\\-*/)(=' :\\]\\[,]")
+	withPattern("(\\*\\*)|((?<=[a-zA-Z_\\])])\\.(?=[a-zA-Z]))|[\\-*/)(' :\\]\\[,]|\\+(?!=)|=(?<!=)")
 )
+
+//val temp = Regex("(\\*\\*)|((?<=[a-zA-Z_\\])])\\.(?=[a-zA-Z]))|[\\-*/)(' :\\]\\[,]|\\+(?!=)|=(?<!=)")
 
 private fun prepare(line: String) = line
 	.trimEnd()
